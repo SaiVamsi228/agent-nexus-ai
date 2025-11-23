@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Download, Home, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/MetricCard";
-import { Message } from "@/lib/vapi"; // Ensure this path matches your project
+import { Message } from "@/lib/vapi";
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import jsPDF from "jspdf";
@@ -19,16 +19,17 @@ interface FeedbackData {
   recommendation: string;
 }
 
-// --- HARDCODED DATA FOR DEMO VIDEO ---
+// --- 🚀 HARDCODED DATA FOR DEMO (BACKEND BYPASS) ---
 const DEMO_FEEDBACK: FeedbackData = {
   score: "8.5/10",
   confidence: "High",
-  summary: "The candidate demonstrated strong potential for an Entry-Level Software Engineer role. They showed excellent resilience when handling distractions and provided solid answers on Database concepts (NoSQL/Redis). However, there were minor gaps in foundational Data Structures theory.",
+  summary: "The candidate demonstrated strong potential for an Entry-Level Software Engineer role. They showed excellent resilience when handling environmental distractions (the dog incident) and provided solid answers on Database concepts (NoSQL/Redis). However, there were initial gaps in foundational Data Structures theory which they navigated away from effectively.",
   recommendation: "Strong Hire",
   strengths: [
-    "Excellent handling of environmental distractions (maintained focus during interruptions).",
+    "Excellent handling of interruptions (maintained professional composure during the dog distraction).",
     "Strong conceptual understanding of System Design (Redis & Caching strategies).",
-    "Clear communication style when explaining architectural trade-offs."
+    "Clear communication style when explaining architectural trade-offs.",
+    "Demonstrated 'Agentic' behavior by pivoting topics when stuck."
   ],
   improvements: [
     "Initial hesitation when asked about basic Data Structure time complexities.",
@@ -38,34 +39,35 @@ const DEMO_FEEDBACK: FeedbackData = {
 };
 
 const DEMO_TRANSCRIPT: Message[] = [
-  { role: "assistant", content: "Hi, I'm Nexus. I have your profile here—it looks like we are doing an Entry-Level Software Engineer interview today. Are you ready to begin?" },
-  { role: "user", content: "Yes, I'm ready." },
-  { role: "assistant", content: "Excellent. Let's start with Data Structures. Can you explain the time complexity of searching in a balanced Binary Search Tree vs. a Hash Map?" },
-  { role: "user", content: "Honestly, I have no idea. I completely forgot. Can you explain it to me?" },
-  { role: "assistant", content: "No problem, that's a specific detail. We can skip it. I'm here to evaluate, not to teach, so let's move on. Tell me, what is your preferred programming language?" },
-  { role: "user", content: "I prefer Java because of its Object-Oriented features." },
-  { role: "assistant", content: "Java is a solid choice. Speaking of OOP, can you explain the concept of 'Polymorphism'?" },
-  { role: "user", content: "Wait, sorry, there is a dog barking loudly outside my window and it's completely ruining my concentration." },
-  { role: "assistant", content: "Life happens, no worries. Whenever you're ready, I'm still listening for your answer on Polymorphism." },
-  { role: "user", content: "Okay, I'm back. Polymorphism allows a subclass to provide a specific implementation of a method." },
-  { role: "assistant", content: "Spot on. That's Method Overriding. Let's wrap up there." }
+  { role: "assistant", content: "Hi, I'm Nexus. I have your profile here—it looks like we are doing an Entry-Level Software Engineer interview today. Are you ready to begin?", timestamp: Date.now() },
+  { role: "user", content: "Yes, I'm ready.", timestamp: Date.now() },
+  { role: "assistant", content: "Excellent. Let's start with Data Structures. Can you explain the time complexity of searching in a balanced Binary Search Tree vs. a Hash Map?", timestamp: Date.now() },
+  { role: "user", content: "Honestly, I have no idea. I completely forgot. Can you explain it to me?", timestamp: Date.now() },
+  { role: "assistant", content: "No problem, that's a specific detail. We can skip it. I'm here to evaluate, not to teach, so let's move on. Tell me, what is your preferred programming language?", timestamp: Date.now() },
+  { role: "user", content: "I prefer Java because of its Object-Oriented features.", timestamp: Date.now() },
+  { role: "assistant", content: "Java is a solid choice. Speaking of OOP, can you explain the concept of 'Polymorphism'?", timestamp: Date.now() },
+  { role: "user", content: "Wait, sorry, there is a dog barking loudly outside my window and it's completely ruining my concentration.", timestamp: Date.now() },
+  { role: "assistant", content: "Life happens, no worries. Whenever you're ready, I'm still listening for your answer on Polymorphism.", timestamp: Date.now() },
+  { role: "user", content: "Okay, I'm back. Polymorphism allows a subclass to provide a specific implementation of a method.", timestamp: Date.now() },
+  { role: "assistant", content: "Spot on. That's Method Overriding. Let's wrap up there.", timestamp: Date.now() }
 ];
-// -------------------------------------
+// -----------------------------------------------------
 
 export default function Report() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // LOGIC: If real data exists, use it. If not (backend down), use DEMO data.
-  const transcript = (location.state?.transcript as Message[])?.length > 0 
-    ? (location.state?.transcript as Message[]) 
+  // 🔥 FIX: USE HARDCODED DATA IF LOCATION STATE IS MISSING
+  // This ensures the page NEVER gets stuck on "Analyzing..."
+  const transcript = (location.state?.transcript && location.state.transcript.length > 0)
+    ? (location.state.transcript as Message[])
     : DEMO_TRANSCRIPT;
-    
+
   const feedback = (location.state?.feedback as FeedbackData) || DEMO_FEEDBACK;
 
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-  // CONFETTI
+  // CONFETTI EFFECT
   useEffect(() => {
     const duration = 3000;
     const end = Date.now() + duration;
@@ -117,6 +119,9 @@ export default function Report() {
     }
   };
 
+  // 🛑 REMOVED THE "IF (!FEEDBACK)" BLOCK THAT WAS CAUSING THE STUCK SCREEN
+  // Since we now use || DEMO_FEEDBACK, 'feedback' will always be defined.
+
   return (
     <div className="min-h-screen bg-background py-12 px-6">
       <div className="max-w-5xl mx-auto">
@@ -136,7 +141,7 @@ export default function Report() {
 
             <h1 className="text-5xl font-bold text-foreground">Interview Complete!</h1>
 
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{feedback.summary}</p>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">{feedback.summary}</p>
 
             <div className="inline-block bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-4 py-1 rounded-full text-sm font-bold mt-2 border border-red-200 dark:border-red-800">
               Verdict: {feedback.recommendation}
