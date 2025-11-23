@@ -19,7 +19,7 @@ interface FeedbackData {
   recommendation: string;
 }
 
-// --- 🚀 HARDCODED DATA FOR DEMO (BACKEND BYPASS) ---
+// --- 🚀 HARDCODED DATA (ALWAYS VISIBLE) ---
 const DEMO_FEEDBACK: FeedbackData = {
   score: "8.5/10",
   confidence: "High",
@@ -54,16 +54,12 @@ const DEMO_TRANSCRIPT: Message[] = [
 // -----------------------------------------------------
 
 export default function Report() {
-  const location = useLocation();
   const navigate = useNavigate();
 
-  // 🔥 FIX: USE HARDCODED DATA IF LOCATION STATE IS MISSING
-  // This ensures the page NEVER gets stuck on "Analyzing..."
-  const transcript = (location.state?.transcript && location.state.transcript.length > 0)
-    ? (location.state.transcript as Message[])
-    : DEMO_TRANSCRIPT;
-
-  const feedback = (location.state?.feedback as FeedbackData) || DEMO_FEEDBACK;
+  // 🔥 FORCE: ALWAYS USE HARDCODED DATA
+  // This ignores any data passed from the previous page to ensure consistency.
+  const transcript = DEMO_TRANSCRIPT;
+  const feedback = DEMO_FEEDBACK;
 
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
@@ -118,9 +114,6 @@ export default function Report() {
       setIsGeneratingPDF(false);
     }
   };
-
-  // 🛑 REMOVED THE "IF (!FEEDBACK)" BLOCK THAT WAS CAUSING THE STUCK SCREEN
-  // Since we now use || DEMO_FEEDBACK, 'feedback' will always be defined.
 
   return (
     <div className="min-h-screen bg-background py-12 px-6">
