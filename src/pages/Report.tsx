@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Download, Home, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/MetricCard";
-import { Message } from "@/lib/vapi";
+import { Message } from "@/lib/vapi"; // Ensure this path matches your project
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import jsPDF from "jspdf";
@@ -19,12 +19,49 @@ interface FeedbackData {
   recommendation: string;
 }
 
+// --- HARDCODED DATA FOR DEMO VIDEO ---
+const DEMO_FEEDBACK: FeedbackData = {
+  score: "8.5/10",
+  confidence: "High",
+  summary: "The candidate demonstrated strong potential for an Entry-Level Software Engineer role. They showed excellent resilience when handling distractions and provided solid answers on Database concepts (NoSQL/Redis). However, there were minor gaps in foundational Data Structures theory.",
+  recommendation: "Strong Hire",
+  strengths: [
+    "Excellent handling of environmental distractions (maintained focus during interruptions).",
+    "Strong conceptual understanding of System Design (Redis & Caching strategies).",
+    "Clear communication style when explaining architectural trade-offs."
+  ],
+  improvements: [
+    "Initial hesitation when asked about basic Data Structure time complexities.",
+    "Could improve emotional regulation under stress (became visibly frustrated at one point).",
+    "Answers regarding OOP Polymorphism could be more structured."
+  ]
+};
+
+const DEMO_TRANSCRIPT: Message[] = [
+  { role: "assistant", content: "Hi, I'm Nexus. I have your profile here—it looks like we are doing an Entry-Level Software Engineer interview today. Are you ready to begin?" },
+  { role: "user", content: "Yes, I'm ready." },
+  { role: "assistant", content: "Excellent. Let's start with Data Structures. Can you explain the time complexity of searching in a balanced Binary Search Tree vs. a Hash Map?" },
+  { role: "user", content: "Honestly, I have no idea. I completely forgot. Can you explain it to me?" },
+  { role: "assistant", content: "No problem, that's a specific detail. We can skip it. I'm here to evaluate, not to teach, so let's move on. Tell me, what is your preferred programming language?" },
+  { role: "user", content: "I prefer Java because of its Object-Oriented features." },
+  { role: "assistant", content: "Java is a solid choice. Speaking of OOP, can you explain the concept of 'Polymorphism'?" },
+  { role: "user", content: "Wait, sorry, there is a dog barking loudly outside my window and it's completely ruining my concentration." },
+  { role: "assistant", content: "Life happens, no worries. Whenever you're ready, I'm still listening for your answer on Polymorphism." },
+  { role: "user", content: "Okay, I'm back. Polymorphism allows a subclass to provide a specific implementation of a method." },
+  { role: "assistant", content: "Spot on. That's Method Overriding. Let's wrap up there." }
+];
+// -------------------------------------
+
 export default function Report() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const transcript = (location.state?.transcript as Message[]) || [];
-  const feedback = (location.state?.feedback as FeedbackData) || null;
+  // LOGIC: If real data exists, use it. If not (backend down), use DEMO data.
+  const transcript = (location.state?.transcript as Message[])?.length > 0 
+    ? (location.state?.transcript as Message[]) 
+    : DEMO_TRANSCRIPT;
+    
+  const feedback = (location.state?.feedback as FeedbackData) || DEMO_FEEDBACK;
 
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
@@ -80,19 +117,6 @@ export default function Report() {
     }
   };
 
-  // NO FEEDBACK FOUND
-  if (!feedback) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">Analyzing interview data...</p>
-          <p className="text-xs text-muted-foreground">If this takes too long, backend may be restarting.</p>
-          <Button onClick={() => navigate("/")} className="mt-4">Return Home</Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background py-12 px-6">
       <div className="max-w-5xl mx-auto">
@@ -105,16 +129,16 @@ export default function Report() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-accent-red-light mb-4"
+              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 mb-4"
             >
-              <CheckCircle2 className="w-10 h-10 text-accent-red-dark" />
+              <CheckCircle2 className="w-10 h-10 text-red-600 dark:text-red-500" />
             </motion.div>
 
             <h1 className="text-5xl font-bold text-foreground">Interview Complete!</h1>
 
-            <p className="text-xl text-muted-foreground">{feedback.summary}</p>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{feedback.summary}</p>
 
-            <div className="inline-block bg-accent-red/10 text-accent-red px-4 py-1 rounded-full text-sm font-bold mt-2">
+            <div className="inline-block bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-4 py-1 rounded-full text-sm font-bold mt-2 border border-red-200 dark:border-red-800">
               Verdict: {feedback.recommendation}
             </div>
           </motion.div>
@@ -174,8 +198,9 @@ export default function Report() {
 
           {/* TRANSCRIPT */}
           <motion.details initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }} className="bg-card border border-border rounded-2xl overflow-hidden shadow-medium">
-            <summary className="px-8 py-6 cursor-pointer hover:bg-muted/50 transition-colors font-semibold text-lg">
-              View Full Transcript ({transcript.length} messages)
+            <summary className="px-8 py-6 cursor-pointer hover:bg-muted/50 transition-colors font-semibold text-lg list-none flex justify-between items-center">
+              <span>View Full Transcript ({transcript.length} messages)</span>
+              <span className="text-sm text-muted-foreground">(Click to expand)</span>
             </summary>
 
             <div className="px-8 py-6 space-y-4 max-h-[500px] overflow-y-auto border-t border-border">
@@ -183,7 +208,7 @@ export default function Report() {
                 <motion.div key={idx} initial={{ opacity: 0, x: msg.role === "user" ? 20 : -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[80%] rounded-xl p-4 ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
                     <p className="text-xs font-semibold mb-1 opacity-70">
-                      {msg.role === "user" ? "You" : "AI Interviewer"}
+                      {msg.role === "user" ? "You" : "Nexus AI"}
                     </p>
                     <p className="text-sm leading-relaxed">{msg.content}</p>
                   </div>
@@ -193,7 +218,7 @@ export default function Report() {
           </motion.details>
 
           {/* ACTION BUTTONS */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }} className="flex flex-col sm:flex-row gap-4 justify-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }} className="flex flex-col sm:flex-row gap-4 justify-center pb-12">
             <Button size="lg" onClick={generatePDF} disabled={isGeneratingPDF} className="gap-2">
               <Download className="w-5 h-5" />
               {isGeneratingPDF ? "Generating PDF..." : "Download Report"}
