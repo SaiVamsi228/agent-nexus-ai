@@ -1,6 +1,6 @@
 import Vapi from "@vapi-ai/web";
 
-export const ASSISTANT_ID = "073fcbe8-ce22-43ac-be1a-1f2c2ff77751";
+export const ASSISTANT_ID = "30698bd7-1483-49b4-8f61-26c79547a80e";
 export const VAPI_PUBLIC_KEY = import.meta.env.VITE_VAPI_PUBLIC_KEY;
 
 export interface Message {
