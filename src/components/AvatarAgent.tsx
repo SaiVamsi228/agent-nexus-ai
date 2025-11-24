@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 interface AvatarAgentProps {
   isSpeaking: boolean;
 }
-
+/**/
 export const AvatarAgent = ({ isSpeaking }: AvatarAgentProps) => {
   return (
     <div className="relative flex items-center justify-center">
